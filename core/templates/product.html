@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Store{% endblock %}
+{% block content %}
+
+    <!-- Page Header Start -->
+    <div class="container-fluid page-header mb-5 wow fadeIn" data-wow-delay="0.1s" style="background-image: url('{% static 'img/image1.jpg' %}'); background-repeat: no-repeat; background-size: cover;">
+        <div class="container">
+            <h1 class="display-3 mb-3 animated slideInDown">Store</h1>
+            <nav aria-label="breadcrumb animated slideInDown">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a class="text-body" href="#">Home</a></li>
+                    <li class="breadcrumb-item text-dark active" aria-current="page">Store</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!-- Page Header End -->
+
+
+    <!-- Product Start -->
+    <div class="container-xxl py-5" id="product">
+        <div class="container">
+            <div class="row g-0 gx-5 align-items-end">
+                <div class="col-lg-6">
+                    <div class="section-header text-start mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
+                        <h1 class="display-5 mb-3">Our Store</h1>
+                        <p>Building a Healthier Community: Your Reliable Pharmacy Store</p>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-start text-lg-end wow slideInRight" data-wow-delay="0.1s">
+                    <ul class="nav nav-pills d-inline-flex justify-content-end mb-5">
+                        <li class="nav-item me-2">
+                            <a class="btn btn-outline-primary border-2 active" data-bs-toggle="pill" href="#tab-1">Medicine</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tab-content">
+                <div id="tab-1" class="tab-pane fade show p-0 active" id="product">
+                    <div class="row g-4">
+                        {% for product in product %}
+                        <div class="col-xl-3 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                            <div class="product-item">
+                                <div class="position-relative bg-light overflow-hidden">
+                                    <img class="img-fluid w-100" src="{{ product.image.url }}" alt="">
+                                    <div class="bg-secondary rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">New</div>
+                                </div>
+                                <div class="text-center p-4">
+                                    <a class="d-block h5 mb-2" href="">{{ product.name }}</a>
+                                    <span class="text-primary me-1">MK {{ product.new_price}}</span>
+                                    <span class="text-body text-decoration-line-through">MK {{ product.old_price}}</span>
+                                </div>
+                                <div class="d-flex border-top">
+                                    <small class="w-50 text-center border-end py-2">
+                                        <a class="text-body" href="{% url 'cart-page' %}"><i class="fa fa-eye text-primary me-2"></i>View cart</a>
+                                    </small>
+                                    <small class="w-50 text-center py-2">
+                                        <a class="text-body" onclick="addToCart('{{ product.name|escapejs }}', {{ product.new_price }})"><i class="fa fa-shopping-bag text-primary me-2"></i>Add to cart</a>
+                                    </small>
+                                </div>
+                            </div>
+                          
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                </div> 
+
+    <!-- Product End -->
+
+    <!-- Top-up container for notification -->
+    <div id="notification-container" class="position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1000;">
+        <div class="toast align-items-center text-white bg-success" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">Product added to cart!</div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    <br>
+    <br>
+    
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-house-fill"></i></a><a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top" style="background-color: skyblue;"><i class="bi bi-house-fill"></i></a>
+
+    <!-- Script to add products to the cart and display notification -->
+    <script>
+        function addToCart(productName, price) {
+            let cartItems = localStorage.getItem('cartItems');
+            if (cartItems) {
+                cartItems = JSON.parse(cartItems);
+            } else {
+                cartItems = [];
+            }
+            cartItems.push({ name: productName, price: price });
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+            // Display the notification
+            const notificationContainer = document.getElementById('notification-container');
+            const toast = notificationContainer.querySelector('.toast');
+            const toastBody = toast.querySelector('.toast-body');
+            toastBody.textContent = 'Product added to cart!';
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+    </script>
+    {% endblock %}

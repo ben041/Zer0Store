@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Cart{% endblock %}
+{% block content %}
+    <!-- Page Header Start -->
+    <div class="container-fluid page-header mb-5 wow fadeIn" data-wow-delay="0.1s" style="background-image: url('{% static 'img/image1.jpg' %}'); background-repeat: no-repeat; background-size: cover;">
+        <div class="container">
+            <h1 class="display-3 mb-3 animated slideInDown">Cart</h1>
+            <nav aria-label="breadcrumb animated slideInDown">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a class="text-body" href="#">Home</a></li>
+                    <li class="breadcrumb-item text-dark active" aria-current="page">Cart</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!-- Page Header End -->
+
+    <!-- Cart content here -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <h2 class="fas fa-shopping-cart">Cart</h2>
+            <div id="cart-items">
+                <table id="cart-table" class="table" >
+                    <thead>
+                        <tr style="color:rgb(17, 116, 182)">
+                            <th>Item/Medicine</th>
+                            <th>Price/Cost</th>
+                            <th>Remove Button</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Cart items will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Cart End -->
+
+    <!-- Top-up container for notification -->
+    <div id="notification-container" class="position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1000;">
+        <div class="toast align-items-center text-white bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">Product removed from cart!</div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-house-fill"></i></a><a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top" style="background-color: skyblue;"><i class="bi bi-house-fill"></i></a>
+
+    <!-- Script to display cart items -->
+    <script>
+        // Function to display cart items
+        function displayCartItems() {
+            let cartItems = localStorage.getItem('cartItems');
+            if (cartItems) {
+                cartItems = JSON.parse(cartItems);
+                let cartTable = document.getElementById('cart-table');
+                let cartTableBody = cartTable.getElementsByTagName('tbody')[0];
+                let totalPrice = 0;
+
+                // Clear the cart table body
+                cartTableBody.innerHTML = '';
+
+                // Loop through the cart items and display them in the table
+                cartItems.forEach((item, index) => {
+                    let itemName = item.name;
+                    let itemPrice = item.price;
+                    totalPrice += itemPrice;
+
+                    // Create a new row for the cart item
+                    let row = cartTableBody.insertRow();
+                    let nameCell = row.insertCell(0);
+                    let priceCell = row.insertCell(1);
+                    let actionCell = row.insertCell(2);
+
+                    // Set the content of the cells
+                    nameCell.textContent = itemName;
+                    priceCell.textContent = 'MK' + itemPrice.toFixed(2);
+
+                    // Create a remove button for each item
+                    let removeButton = document.createElement('button');
+                    removeButton.textContent = 'Remove';
+                    removeButton.classList.add('btn', 'btn-danger', 'btn-sm');
+                    removeButton.addEventListener('click', function () {
+                        removeCartItem(index);
+                    });
+
+                    actionCell.appendChild(removeButton);
+                });
+
+                // Display the total price
+                let totalPriceRow = cartTable.insertRow();
+                let totalPriceCell = totalPriceRow.insertCell();
+                totalPriceCell.colSpan = 2;
+                totalPriceCell.textContent = 'Total:';
+                let totalPriceValueCell = totalPriceRow.insertCell();
+                totalPriceValueCell.textContent = 'MK' + totalPrice.toFixed(2);
+            } else {
+                // No items in the cart
+                let cartTableBody = document.getElementById('cart-table').getElementsByTagName('tbody')[0];
+                let emptyRow = cartTableBody.insertRow();
+                let emptyCell = emptyRow.insertCell();
+                emptyCell.textContent = 'No items in the cart.';
+                emptyCell.colSpan = 3;
+            }
+        }
+
+        // Function to remove a cart item
+        function removeCartItem(index) {
+            let cartItems = localStorage.getItem('cartItems');
+            if (cartItems) {
+                cartItems = JSON.parse(cartItems);
+
+                // Remove the item at the specified index
+                if (index >= 0 && index < cartItems.length) {
+                    cartItems.splice(index, 1);
+                    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                }
+
+                // Refresh the cart display
+                displayCartItems();
+
+                // Display the notification
+                const notificationContainer = document.getElementById('notification-container');
+                const toast = notificationContainer.querySelector('.toast');
+                const toastBody = toast.querySelector('.toast-body');
+                toastBody.textContent = 'Product removed from cart!';
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.show();
+            }
+        }
+
+        // Call the function to display cart items when the page loads
+        displayCartItems();
+    </script>
+
+    {% endblock %}
+
+                    
