@@ -1,10 +1,4 @@
-Here’s a **README.md** file for your project:
-
----
-
 # Zer0Store
-
-![Zer0Store Logo](https://via.placeholder.com/150) <!-- Replace with your logo URL if available -->
 
 Zer0Store is an e-commerce web application built with Django, allowing users to browse products, view product details, and manage their shopping cart efficiently. The project aims to provide a seamless and user-friendly shopping experience.
 
@@ -135,10 +129,10 @@ urlpatterns = [
 ## Screenshots
 
 ### Home Page
-![Home Page](https://via.placeholder.com/500)
+![Home Page](screenshots/home.png)
 
-### Cart Page
-![Cart Page](https://via.placeholder.com/500)
+### Store Page
+![store Page](screenshots/store.png)
 
 ## Contributing
 
