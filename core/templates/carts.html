@@ -21,10 +21,11 @@
         <div class="container">
             <h2 class="fas fa-shopping-cart">Cart</h2>
             <div id="cart-items">
-                <table id="cart-table" class="table" >
+                <table id="cart-table" class="table">
                     <thead>
                         <tr style="color:rgb(17, 116, 182)">
                             <th>Item/Medicine</th>
+                            <th>Quantity</th>
                             <th>Price/Cost</th>
                             <th>Remove Button</th>
                         </tr>
@@ -34,9 +35,42 @@
                     </tbody>
                 </table>
             </div>
+            <button id="buy-button" class="btn btn-success mt-3">Buy All</button>
         </div>
     </div>
     <!-- Cart End -->
+
+    <!-- Payment Modal -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Payment Gateway</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Select a payment gateway to complete your purchase:</p>
+                    <div class="d-flex justify-content-around">
+                        <div class="text-center">
+                            <img src="{% static 'img/mpamba.png' %}" alt="TNM" style="width: 60px;">
+                        </div>
+                        <div class="text-center">
+                            <img src="{% static 'img/airtel.jpeg' %}" alt="Airtel" style="width: 60px;">
+                        </div>
+                        <div class="text-center">
+                            <img src="{% static 'img/national-bank.png' %}" alt="National Bank" style="width: 60px;">
+                        </div>
+                    </div>
+                    <p>Confirm your payment to proceed with the purchase.</p>
+                    <p>Total: <strong><span id="modal-total-price"></span></strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="complete-payment-button" type="button" class="btn btn-success">Complete Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Top-up container for notification -->
     <div id="notification-container" class="position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1000;">
@@ -47,7 +81,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- Back to Top -->
     <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-house-fill"></i></a><a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top" style="background-color: skyblue;"><i class="bi bi-house-fill"></i></a>
@@ -66,20 +99,31 @@
                 // Clear the cart table body
                 cartTableBody.innerHTML = '';
 
-                // Loop through the cart items and display them in the table
-                cartItems.forEach((item, index) => {
-                    let itemName = item.name;
-                    let itemPrice = item.price;
+                // Group items by name and calculate quantities
+                let groupedItems = {};
+                cartItems.forEach(item => {
+                    if (groupedItems[item.name]) {
+                        groupedItems[item.name].quantity += 1;
+                    } else {
+                        groupedItems[item.name] = { ...item, quantity: 1 };
+                    }
+                });
+
+                // Loop through grouped items and display them in the table
+                for (let [itemName, item] of Object.entries(groupedItems)) {
+                    let itemPrice = item.price * item.quantity;
                     totalPrice += itemPrice;
 
                     // Create a new row for the cart item
                     let row = cartTableBody.insertRow();
                     let nameCell = row.insertCell(0);
-                    let priceCell = row.insertCell(1);
-                    let actionCell = row.insertCell(2);
+                    let quantityCell = row.insertCell(1);
+                    let priceCell = row.insertCell(2);
+                    let actionCell = row.insertCell(3);
 
                     // Set the content of the cells
                     nameCell.textContent = itemName;
+                    quantityCell.textContent = item.quantity;
                     priceCell.textContent = 'MK' + itemPrice.toFixed(2);
 
                     // Create a remove button for each item
@@ -87,16 +131,16 @@
                     removeButton.textContent = 'Remove';
                     removeButton.classList.add('btn', 'btn-danger', 'btn-sm');
                     removeButton.addEventListener('click', function () {
-                        removeCartItem(index);
+                        removeCartItem(itemName);
                     });
 
                     actionCell.appendChild(removeButton);
-                });
+                }
 
                 // Display the total price
                 let totalPriceRow = cartTable.insertRow();
                 let totalPriceCell = totalPriceRow.insertCell();
-                totalPriceCell.colSpan = 2;
+                totalPriceCell.colSpan = 3;
                 totalPriceCell.textContent = 'Total:';
                 let totalPriceValueCell = totalPriceRow.insertCell();
                 totalPriceValueCell.textContent = 'MK' + totalPrice.toFixed(2);
@@ -106,21 +150,19 @@
                 let emptyRow = cartTableBody.insertRow();
                 let emptyCell = emptyRow.insertCell();
                 emptyCell.textContent = 'No items in the cart.';
-                emptyCell.colSpan = 3;
+                emptyCell.colSpan = 4;
             }
         }
 
         // Function to remove a cart item
-        function removeCartItem(index) {
+        function removeCartItem(itemName) {
             let cartItems = localStorage.getItem('cartItems');
             if (cartItems) {
                 cartItems = JSON.parse(cartItems);
 
-                // Remove the item at the specified index
-                if (index >= 0 && index < cartItems.length) {
-                    cartItems.splice(index, 1);
-                    localStorage.setItem('cartItems', JSON.stringify(cartItems));
-                }
+                // Remove all occurrences of the item
+                cartItems = cartItems.filter(item => item.name !== itemName);
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
 
                 // Refresh the cart display
                 displayCartItems();
@@ -135,10 +177,50 @@
             }
         }
 
-        // Call the function to display cart items when the page loads
-        displayCartItems();
+        // Handle Buy All button click
+        document.getElementById('buy-button').addEventListener('click', function () {
+            let cartItems = localStorage.getItem('cartItems');
+            if (cartItems && JSON.parse(cartItems).length > 0) {
+                cartItems = JSON.parse(cartItems);
+                let groupedItems = {};
+                let totalPrice = 0;
+
+                cartItems.forEach(item => {
+                    if (groupedItems[item.name]) {
+                        groupedItems[item.name].quantity += 1;
+                    } else {
+                        groupedItems[item.name] = { ...item, quantity: 1 };
+                    }
+                });
+
+                for (let item of Object.values(groupedItems)) {
+                    totalPrice += item.price * item.quantity;
+                }
+
+                // Display total price in modal
+                document.getElementById('modal-total-price').textContent = 'MK' + totalPrice.toFixed(2);
+
+                // Show the modal
+                let paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+                paymentModal.show();
+            } else {
+                alert('No items in the cart to buy!');
+            }
+        });
+
+        // Handle Complete Payment button click
+        document.getElementById('complete-payment-button').addEventListener('click', function () {
+            // Simulate payment processing
+            alert('Payment processed successfully!');
+
+            // Clear the cart
+            localStorage.removeItem('cartItems');
+
+            // Refresh the cart display
+            displayCartItems();
+        });
+
+        // Display the cart items on page load
+        document.addEventListener('DOMContentLoaded', displayCartItems);
     </script>
-
-    {% endblock %}
-
-                    
+{% endblock %}
