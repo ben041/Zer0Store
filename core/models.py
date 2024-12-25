@@ -11,14 +11,4 @@ class Products(models.Model):
         return self.name
 
 
-class Doctors(models.Model):
-    name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='images')
-    description = models.TextField(max_length=400)
-    phone_number = models.CharField(max_length=15, blank=True, null=True)  # Optional field for phone
-    email = models.EmailField(blank=True, null=True)  # Optional email field
-    address = models.TextField(max_length=300, blank=True, null=True)  # Optional address field
-    specialization = models.CharField(max_length=100, blank=True, null=True)  # Optional specialization field
 
-    def __str__(self):
-        return self.name

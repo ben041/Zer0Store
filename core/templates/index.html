@@ -13,7 +13,6 @@
                             <div class="col-lg-7">
                                 <h1 class="display-2 mb-5 animated slideInDown">Your Reliable Pharmacy Store</h1>
                                 <a href="{% url 'product-page' %}" class="btn btn-primary rounded-pill py-sm-3 px-sm-5">Store</a>
-                                <a href="{% url 'doctor-page' %}" class="btn btn-secondary rounded-pill py-sm-3 px-sm-5 ms-3">Doctor</a>
                             </div>
                         </div>
                     </div>
@@ -23,29 +22,7 @@
     </div>    
     <!-- Carousel End -->
 
-    <!-- Feature Start -->
-    <div class="container-fluid bg-light bg-icon my-5 py-6" style="background-image: url('{% static 'img/image.jpg' %}'); background-repeat: no-repeat; background-size: cover;">
-        <div class="container">
-            <div class="section-header text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
-                <h1 class="display-5 mb-3">Doctors</h1>
-                <p>Expert Care, Personalized Approach: Our Trusted Team of Doctors</p>
-            </div>
-            <div class="row g-4">
-                {% for doctor in doctor %}
-                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-                    <div class="bg-white text-center h-100 p-4 p-xl-5">
-                        <img class="img-fluid mb-4" src="{{ doctor.image.url }}" alt="">
-                        <h4 class="mb-3">{{ doctor.name }}</h4>
-                        <p class="mb-4">{{ doctor.description }}</p>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>                        
-            
-        </div>
-    </div>
-    <!-- Feature End -->
-
+    
 
     <!-- Product Start -->
     <div class="container-xxl py-5" id="products">
